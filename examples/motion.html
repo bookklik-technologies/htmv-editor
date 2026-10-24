@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HTMV Editor · Starter example</title><link rel="stylesheet" href="./styles.css"><style>html,body{margin:0;height:100%;background:#111315}#editor{height:100dvh;min-height:650px}</style></head>
+<body><main id="editor"></main><script type="module">
+import { createEditor } from './htmv-editor.js';
+// This example never writes or restores user projects.
+const editor = createEditor(document.getElementById('editor'), { autosave: false, storageKey: 'motion-showcase' });
+await editor.ready;
+await editor.loadTemplate('builtin-title', { discardUnsaved: true });
+await editor.seek(30);
+editor.setSelection([editor.getProject().clips.find(clip => clip.name === 'Headline').id]);
+window.addEventListener('pagehide', () => { void editor.destroy(); });
+</script></body></html>

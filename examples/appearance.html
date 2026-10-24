@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HTMV Editor · Appearance workbench</title><link rel="stylesheet" href="./styles.css">
+<style>body{margin:0;background:#e9eae7;color:#1b2420;font:13px Outfit,sans-serif}header{padding:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}header button,header select{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid #858d86;background:#fff;color:#1b2420}h1{font-size:18px;margin:0}#main{width:1280px;height:720px}#others{display:flex;gap:16px;padding-top:16px}#others[hidden]{display:none}#others>div{width:880px;flex:none}#second,#third{width:880px;height:580px}#report{display:block;white-space:pre-wrap;max-height:240px;overflow:auto;padding:16px;font-size:12px}h2{font-size:14px;margin:12px 16px}</style></head>
+<body><header><h1>Appearance workbench</h1><label>Workspace size <select id="size"><option value="1920x1080">1920 × 1080</option><option value="1280x720" selected>1280 × 720</option><option value="880x580">880 × 580</option></select></label><label><input id="system-dark" type="checkbox"> Simulated dark system</label><label><input id="fail-preference" type="checkbox"> Block preference storage</label><button id="mount">Mount comparison instances</button><button id="remount">Destroy & remount main</button><button id="record">Record presentation state</button><button id="edit">Add text to main</button><button id="undo">Undo main edit</button></header>
+<main id="main"></main><div id="others" hidden><div><h2>Shared appearance namespace</h2><div id="second"></div></div><div><h2>Independent namespace · initial light override</h2><div id="third"></div></div></div><output id="report" aria-live="polite"></output>
+<script type="module">
+import { createEditor } from './htmv-editor.js';
+// Interactive fixtures only. Source decoding/project storage are not intercepted.
+const report=document.getElementById('report');
+const log=value=>{report.textContent=JSON.stringify(value)+'\n'+report.textContent;};
+const actualMatchMedia=window.matchMedia.bind(window), actualSetItem=Storage.prototype.setItem;
+const nativeSystem=actualMatchMedia('(prefers-color-scheme: dark)'), events=new EventTarget();
+const simulated={media:nativeSystem.media,matches:nativeSystem.matches,onchange:null,addEventListener:events.addEventListener.bind(events),removeEventListener:events.removeEventListener.bind(events),dispatchEvent:events.dispatchEvent.bind(events)};
+window.matchMedia=query=>query==='(prefers-color-scheme: dark)'?simulated:actualMatchMedia(query);
+document.getElementById('system-dark').checked=simulated.matches;
+Storage.prototype.setItem=function(key,value){if(document.getElementById('fail-preference').checked&&key.startsWith('htmv-editor:appearance:appearance-workbench'))throw new DOMException('Manual preference storage failure','QuotaExceededError');return actualSetItem.call(this,key,value);};
+let main,second,third;
+const observed=[];
+const options={autosave:false,storageKey:'appearance-workbench',onEvent:event=>{if(event.type==='appearance'){observed.push(event);log(event);}}};
+async function mountMain(){main=createEditor(document.getElementById('main'),options);await main.ready;await main.loadTemplate('builtin-title',{discardUnsaved:true});await main.seek(30);main.setSelection([main.getProject().clips[0].id]);}
+await mountMain();
+document.getElementById('size').onchange=event=>{const [width,height]=event.target.value.split('x');Object.assign(document.getElementById('main').style,{width:width+'px',height:height+'px'});log({containerSize:event.target.value});};
+document.getElementById('system-dark').onchange=event=>{simulated.matches=event.target.checked;events.dispatchEvent(new Event('change'));log({simulatedSystem:simulated.matches?'dark':'light'});};
+document.getElementById('mount').onclick=async event=>{event.target.disabled=true;try{if(second){await second.destroy();await third.destroy();second=third=null;document.getElementById('others').hidden=true;event.target.textContent='Mount comparison instances';}else{document.getElementById('others').hidden=false;second=createEditor(document.getElementById('second'),options);third=createEditor(document.getElementById('third'),{...options,storageKey:'appearance-workbench-independent',appearance:'light'});await Promise.all([second.ready,third.ready]);event.target.textContent='Destroy comparison instances';}}finally{event.target.disabled=false;}};
+document.getElementById('remount').onclick=async()=>{await main.destroy();await mountMain();log({remounted:main.getAppearance()});};
+document.getElementById('edit').onclick=()=>{document.querySelector('#main [data-action="add-text"]').click();};
+document.getElementById('undo').onclick=()=>main.undo();
+document.getElementById('record').onclick=()=>{const state=(editor,host)=>editor?{preference:editor.getAppearance(),resolved:host.querySelector('.htmv-editor').dataset.appearance,frame:editor.inspectFrame().frame,revision:editor.inspectFrame().revisionHash,clips:editor.getProject().clips.length,dirty:editor.hasUnsavedChanges,undoEnabled:!host.querySelector('[data-action="undo"]').disabled}:null;log({main:state(main,document.getElementById('main')),shared:state(second,document.getElementById('second')),independent:state(third,document.getElementById('third')),appearanceEvents:observed.length,container:document.getElementById('main').getBoundingClientRect().toJSON()});};
+window.addEventListener('pagehide',()=>{void main?.destroy();void second?.destroy();void third?.destroy();Storage.prototype.setItem=actualSetItem;window.matchMedia=actualMatchMedia;});
+</script></body></html>

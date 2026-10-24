@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTMV Editor · Manual verification</title><link rel="stylesheet" href="./styles.css">
+<style>body{margin:0;background:#101512;color:#d8e9df;font:12px Arial}#controls{padding:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}#controls button,#controls input{font:inherit;padding:6px;background:#273a30;color:#d8e9df;border:1px solid #425c4b;border-radius:4px}#frame{width:50px}#editor{height:800px}#report{max-height:260px;overflow:auto;white-space:pre-wrap;font-size:11px;padding:14px}video{max-width:480px;display:block;margin:14px}</style></head><body>
+<div id="controls">
+  <button data-lab="motion">Motion fixture</button>
+  <button data-lab="ellipse">Ellipse stroke fixture</button>
+  <button data-lab="comparison">Export comparison fixture</button>
+  <button data-lab="compare">Compare exported frames</button>
+  <button data-lab="audio-boundary">Audio split comparison</button>
+  <label><input type="checkbox" id="allow-audio">Accept unverified audio for fixture exports</label>
+  <button data-lab="v1">Version 1 fixture</button>
+  <button data-lab="benchmark">100-clip benchmark</button>
+  <button data-lab="missing">Missing-media fixture</button>
+  <label><input type="checkbox" id="fail-save"> Fail saves (quota fixture)</label>
+  <button data-lab="save">Flush save</button>
+  <button data-lab="roundtrip">Archive round trip</button>
+  <button data-lab="invalid">Invalid archive</button>
+  <button data-lab="remount">Destroy & remount</button>
+  <input id="frame" type="number" value="45" aria-label="Inspection frame">
+  <button data-lab="frame">Inspect frame</button>
+  <button data-lab="boundary">Trim & split boundary</button>
+  <button data-lab="rapid">Rapid revision / scrub</button>
+  <button data-lab="report">Record metrics</button>
+  <button data-lab="opfs">Render OPFS</button>
+  <button data-lab="file">Render file handle</button>
+  <button data-lab="webm">Render WebM Blob · marked range</button>
+  <button data-lab="hidden-audio">Compare hidden-video audio</button>
+</div><main id="editor"></main><video id="rendered" controls></video><pre id="report" aria-live="polite"></pre>
+<script type="module" src="./manual.js"></script></body></html>

@@ -1,0 +1,44 @@
+{
+  "name": "@htmv/editor",
+  "version": "0.2.0",
+  "description": "Local browser motion graphics editor powered by HTMV",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./logo.svg": "./dist/branding/logo.svg",
+    "./icon.svg": "./dist/branding/icon.svg"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "examples",
+    "VALIDATION.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --emitDeclarationOnly && node scripts/build.mjs",
+    "dev": "npm run build && node scripts/dev.mjs"
+  },
+  "peerDependencies": {
+    "@bookklik/htmv": "^0.1.2"
+  },
+  "dependencies": {
+    "fflate": "0.8.3",
+    "lucide": "1.61.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "typescript": "^5.6.3",
+    "@bookklik/htmv": "0.1.2"
+  }
+}

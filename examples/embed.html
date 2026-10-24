@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HTMV Editor · Embedding example</title><link rel="stylesheet" href="./styles.css"><style>body{margin:0;background:#0c0e12;color:#ddd;font:14px Arial}header{padding:16px 24px}header p{color:#999;font-size:12px}#embedded{height:820px;margin:0 24px 24px;border:1px solid #343740;border-radius:12px;overflow:hidden}#events{padding:0 24px 24px;white-space:pre-wrap;font:12px monospace;color:#b7c0ac}</style></head>
+<body><header><h1>An editor inside your application</h1><p>This page imports the bundled ESM package, supplies its own container, and receives typed editor events.</p><button id="toggle">Mount a second editor</button></header><div id="embedded"></div><div id="second" style="height:820px;margin:24px;border:1px solid #343740;border-radius:12px;overflow:hidden" hidden></div><output id="events" aria-live="polite">Waiting for editor…</output><script type="module">
+import { createEditor } from './htmv-editor.js';
+const editor = createEditor(document.getElementById('embedded'), {
+  storageKey: 'embedding-example',
+  appearance: 'system', // Optional initial override; otherwise restores the namespace preference.
+  onEvent(event) { if (event.type !== 'playback') document.getElementById('events').textContent = `Latest event: ${event.type}`; }
+});
+await editor.ready;
+// Hosts can also call editor.getAppearance()/setAppearance('light' | 'dark' | 'system').
+let second;
+document.getElementById('toggle').addEventListener('click', async () => {
+  const button = document.getElementById('toggle'); button.disabled = true;
+  const host = document.getElementById('second');
+  try {
+    if (second) { await second.destroy(); second = undefined; host.hidden = true; button.textContent = 'Mount a second editor'; }
+    else { host.hidden = false; second = createEditor(host, {storageKey:'embedding-second'}); await second.ready; button.textContent = 'Destroy second editor'; }
+  } finally { button.disabled = false; }
+});
+window.addEventListener('pagehide', event => { if (!event.persisted) { void editor.destroy(); void second?.destroy(); } });
+</script></body></html>
