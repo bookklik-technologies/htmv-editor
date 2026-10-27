@@ -1,8 +1,6 @@
 import { defineConfig } from 'vitepress';
 
-// GitHub Pages deploys project sites under the repository slug
-// (https://bookklik-technologies.github.io/htmv-editor/). Override locally with VITEPRESS_BASE.
-const base = process.env.VITEPRESS_BASE ?? '/htmv-editor/';
+const base = process.env.VITEPRESS_BASE ?? '/htmv-editor/docs/';
 
 export default defineConfig({
   base,
@@ -12,18 +10,19 @@ export default defineConfig({
   description:
     'A local browser motion graphics editor powered by HTMV. Mount the full workspace or embed the headless controller and export MP4 or WebM.',
   sitemap: {
-    hostname: 'https://bookklik-technologies.github.io/htmv-editor/'
+    hostname: `https://bookklik-technologies.github.io${base}`
   },
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}icon.svg` }]
   ],
-  cleanUrls: true,
+  cleanUrls: false,
   markdown: {
     lineNumbers: false
   },
   themeConfig: {
     logo: { src: '/logo.svg', alt: 'HTMV Editor' },
     nav: [
+      { text: 'Live app', link: 'https://bookklik-technologies.github.io/htmv-editor/' },
       { text: 'Guide', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: 'Reference', link: '/reference/controller-api', activeMatch: '/reference/' }
     ],

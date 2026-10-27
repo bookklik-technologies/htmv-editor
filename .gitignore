@@ -1,8 +1,10 @@
 node_modules/
 dist/
 app/
+_site/
 *.tsbuildinfo
 *.log
 .npm-cache/
 docs/.vitepress/cache/
 docs/.vitepress/dist/
+_site/

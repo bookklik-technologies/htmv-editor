@@ -2,7 +2,7 @@
 
 `@bookklik/htmv-editor` is a framework-independent TypeScript motion editor and a standalone browser application powered by [HTMV](https://github.com/bookklik-technologies/htmv). Editing, decoding, storage, and rendering run locally. No render server, cloud service, or account is required at runtime.
 
-[Documentation](https://bookklik-technologies.github.io/htmv-editor/) · [Getting started](docs/guide/getting-started.md) · [Embedding](docs/guide/embedding.md) · [Controller API](docs/reference/controller-api.md)
+[Live app](https://bookklik-technologies.github.io/htmv-editor/) · [Documentation](https://bookklik-technologies.github.io/htmv-editor/docs/) · [Getting started](docs/guide/getting-started.md) · [Embedding](docs/guide/embedding.md) · [Controller API](docs/reference/controller-api.md)
 
 ![HTMV Editor workspace preview](preview.png)
 
@@ -412,6 +412,18 @@ The full documentation site is built with VitePress from `docs/`:
 
 Run `npm run docs:dev` for a local documentation server or `npm run docs:build`
 for a static site.
+
+### GitHub Pages deployment
+
+In the repository's **Settings > Pages > Build and deployment**, select
+**GitHub Actions** as the source. The deployment workflow runs on pushes to `main`
+and can also be started manually from Actions. It builds both sites and deploys
+one Pages artifact: the standalone app at `/htmv-editor/` and documentation at
+`/htmv-editor/docs/`.
+
+Documentation uses `/htmv-editor/docs/` as its default base path and keeps `.html`
+links for direct page loads on GitHub Pages. Set `VITEPRESS_BASE` to override
+the documentation base for another host.
 
 ## Packages
 
