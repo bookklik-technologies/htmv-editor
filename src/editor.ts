@@ -7,7 +7,7 @@ import { ProjectStorage, StorageConflictError } from './storage.js';
 import { DocumentStore, SelectionModel } from './state.js';
 import { AppearanceController } from './appearance.js';
 import { applyCommand } from './commands.js';
-import { builtinProject, BUILTIN_TEMPLATES as builtinTemplates, freshProject } from './templates.js';
+import { builtinProject, BUILTIN_TEMPLATES as builtinTemplates, freshProject, isBuiltinTemplate } from './templates.js';
 import { makeCaption, parseSubtitles, subtitleBlob } from './captions.js';
 import { TimelineView } from './timeline.js';
 import { PointerTransaction } from './interaction.js';
@@ -197,7 +197,7 @@ class Editor implements EditorController {
   private refreshTemplates(): void { void this.listTemplates().then(items => { this.templates = items; if (this.panel === 'templates' && !this.closed) this.renderPanel(); }).catch(e => this.diagnostic(e, 'templates')); }
   async saveTemplate(name: string): Promise<void> { this.assertEditable(); await this.trackJob(this.storage.saveTemplate({ project: this.getProject(), assets: this.getAssets() }, name)); if (!this.closed) this.refreshTemplates(); }
   loadTemplate(id: string, options: { discardUnsaved?: boolean } = {}): Promise<void> { return this.trackJob(this.loadTemplateNow(id, options)); }
-  private async loadTemplateNow(id: string, options: { discardUnsaved?: boolean }): Promise<void> { this.assertEditable(); const token = ++this.operation, bundle = builtinTemplates.some(t => t.id === id) ? { project: builtinProject(id), assets: {} } : await this.storage.loadTemplate(id); if (this.closed || token !== this.operation) return; await this.loadProject(freshProject(bundle.project), bundle.assets, options); }
+  private async loadTemplateNow(id: string, options: { discardUnsaved?: boolean }): Promise<void> { this.assertEditable(); const token = ++this.operation, bundle = isBuiltinTemplate(id) ? { project: builtinProject(id), assets: {} } : await this.storage.loadTemplate(id); if (this.closed || token !== this.operation) return; await this.loadProject(freshProject(bundle.project), bundle.assets, options); }
   importSubtitles(file: Blob, _format?: 'srt' | 'vtt'): Promise<void> { return this.trackJob(this.importSubtitlesNow(file)); }
   private async importSubtitlesNow(file: Blob): Promise<void> { this.assertEditable(); if (file.size > 8 * 1024 * 1024) throw new Error('Subtitle metadata exceeds 8 MiB.'); const token = this.operation; const cues = parseSubtitles(await file.text(), this.project.fps); this.assertEditable(); if (token !== this.operation) return; this.updateProject(p => { const track = p.tracks.find(t => t.kind === 'caption' && !t.locked) ?? { id: uid('track'), name: 'Captions', kind: 'caption' as const }; if (!p.tracks.includes(track)) p.tracks.unshift(track); p.clips.push(...cues.map(cue => makeCaption(p, track.id, cue.start, cue.end - cue.start, cue.text))); p.duration = Math.max(p.duration, endFrame(p)); }); this.panel = 'captions'; this.renderPanel(); }
   exportSubtitles(format: 'srt' | 'vtt' = 'srt'): Blob { return subtitleBlob(this.project, format); }
@@ -372,7 +372,7 @@ class Editor implements EditorController {
     if (action === 'export-srt' || action === 'export-vtt') { const ext = action === 'export-srt' ? 'srt' : 'vtt'; this.download(this.exportSubtitles(ext), `${this.project.name}.${ext}`); return; }
     if (action === 'save-template') { this.showDialog('Save local template', `${field('Template name', 'template-name', this.project.name, 'text')}${button('commit-template', 'Save template', 'template', 'class="he-primary"')}`); return; }
     if (action === 'commit-template') { await this.saveTemplate(this.dialogValue('template-name')); this.closeDialog(); this.panel = 'templates'; this.renderPanel(); return; }
-    if (action === 'load-template') { await this.switchUI(async token => { const id = el.dataset.template!; const bundle = builtinTemplates.some(t => t.id === id) ? { project: builtinProject(id), assets: {} } : await this.storage.loadTemplate(id); if (token !== this.operation || this.closed) return; this.replace({ project: freshProject(bundle.project), assets: bundle.assets }); await this.compile(); this.closeDialog(); }); return; }
+    if (action === 'load-template') { await this.switchUI(async token => { const id = el.dataset.template!; const bundle = isBuiltinTemplate(id) ? { project: builtinProject(id), assets: {} } : await this.storage.loadTemplate(id); if (token !== this.operation || this.closed) return; this.replace({ project: freshProject(bundle.project), assets: bundle.assets }); await this.compile(); this.closeDialog(); }); return; }
     if (action === 'projects') { await this.projectsDialog(); return; }
     if (action === 'new-project') { await this.switchUI(async () => { this.replace({ project: createProject(), assets: {} }); this.closeDialog(); await this.compile(); }); return; }
     if (action === 'open-project') { await this.switchUI(async token => { const bundle = await this.storage.load(el.dataset.key!); if (token !== this.operation || this.closed) return; this.replace(bundle); this.savedDocument = this.project; this.saveStatus('saved', 'All changes saved'); this.closeDialog(); await this.compile(); }); return; }

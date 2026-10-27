@@ -47,7 +47,7 @@ export type EditorCommand =
 export interface EditorFrameNode { id: string; x: number; y: number; width: number; height: number; rotation: number; scaleX: number; scaleY: number; opacity: number; corners: { x: number; y: number }[]; values: Record<string, number | string> }
 export interface EditorFrameTransition { type: string; direction: string; progress: number; outgoingId: string | null; incomingId: string }
 export interface EditorFrameState { frame: number; revisionHash: string; nodes: EditorFrameNode[]; transitions?: EditorFrameTransition[] }
-export interface EditorTemplate { id: string; name: string; description: string; builtin: boolean }
+export interface EditorTemplate { id: string; name: string; description: string; builtin: boolean; durationSeconds?: number; sceneCount?: number; previewTitle?: string; previewLabel?: string }
 export type EditorAppearance = 'system' | 'light' | 'dark';
 export interface EditorAppearanceState { preference: EditorAppearance; resolved: 'light' | 'dark' }
 export type EditorEvent =

@@ -187,15 +187,18 @@
 .htmv-editor .he-template-grid>button>strong,.htmv-editor .he-template-grid>button>small { padding: 0 12px; }
 .htmv-editor .he-template-grid>button>strong { font-size: 13px; font-weight: 600; margin-top: 6px; }
 .htmv-editor .he-template-grid small { font-size: 11px; color: var(--muted); }
-.htmv-editor .he-template-art { position: relative; display: flex; flex-direction: column; justify-content: center; height: 120px; background: #153e31; padding: 20px; color: #e2ffef; overflow: hidden; }
-.htmv-editor .he-template-art>strong { font-size: 22px; letter-spacing: -.7px; line-height: 1.15; position: relative; width: 85%; }
-.htmv-editor .he-template-art>small { position: relative; color: #c3e7d6; font-size: 9px; letter-spacing: 1.5px; margin-top: 12px; }
-.htmv-editor .he-template-art>i { position: absolute; width: 110px; height: 110px; border: 25px solid #2c5a45; border-radius: 50%; right: -40px; bottom: -50px; }
-.htmv-editor .he-template-1 { background: #283042; color: #edf1ff; justify-content: end; }
-.htmv-editor .he-template-1>strong { font-size: 20px; }
-.htmv-editor .he-template-1>small { margin-top: 6px; }
-.htmv-editor .he-template-2 { background: #4a3d5a; color: #f4e8fa; }
-.htmv-editor .he-template-2>i { border-radius: 20px; transform: rotate(30deg); border-color: #68527c; }
+.htmv-editor .he-template-art { display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; aspect-ratio: 16 / 9; min-height: 150px; background: var(--panel); padding: 24px; color: var(--text); }
+.htmv-editor .he-template-art>strong { font: 700 26px/1.15 Georgia, serif; letter-spacing: -.4px; white-space: pre-line; overflow-wrap: anywhere; }
+.htmv-editor .he-template-art>small { color: inherit; font-size: 11px; letter-spacing: .6px; margin-top: 18px; }
+.htmv-editor .he-template-malaysia { background: #102b46; color: #fff3dd; }
+.htmv-editor .he-template-malaysia>small { color: #edbe62; }
+.htmv-editor .he-template-html { background: #101d21; color: #f1f8f3; }
+.htmv-editor .he-template-html>strong { font-family: "Courier New", monospace; }
+.htmv-editor .he-template-html>small { color: #92e6ae; }
+.htmv-editor .he-template-food { background: #fff0d9; color: #5a2026; }
+.htmv-editor .he-template-food>small { color: #a62d35; }
+.htmv-editor .he-template-saved>strong { font-family: inherit; font-size: 22px; }
+.htmv-editor .he-template-grid .he-template-meta { color: var(--text); font-variant-numeric: tabular-nums; }
 
 /* 5. Canvas and transport. Composition pixels and selection coordinates are unmodified. */
 .htmv-editor .he-preview-panel { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); border: 1px solid var(--edge); border-radius: var(--radius-panel); overflow: hidden; }
