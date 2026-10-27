@@ -35,10 +35,21 @@
     "build": "node scripts/clean.mjs && tsc --emitDeclarationOnly && node scripts/build.mjs",
     "prepack": "npm run build && node scripts/check-package.mjs",
     "pack:check": "npm pack --dry-run",
-    "dev": "npm run build && node scripts/dev.mjs"
+    "dev": "npm run build && node scripts/dev.mjs",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
-  "publishConfig": { "access": "public" },
-  "keywords": ["htmv", "motion-graphics", "video-editor", "headless", "typescript"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "htmv",
+    "motion-graphics",
+    "video-editor",
+    "headless",
+    "typescript"
+  ],
   "peerDependencies": {
     "@bookklik/htmv": "^0.1.2"
   },
@@ -47,8 +58,9 @@
     "lucide": "1.61.0"
   },
   "devDependencies": {
+    "@bookklik/htmv": "0.1.2",
     "esbuild": "0.28.2",
     "typescript": "^5.6.3",
-    "@bookklik/htmv": "0.1.2"
+    "vitepress": "^1.6.4"
   }
 }
