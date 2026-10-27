@@ -1,5 +1,5 @@
 {
-  "name": "@htmv/editor",
+  "name": "@bookklik/htmv-editor",
   "version": "0.3.0",
   "description": "Local browser motion graphics editor powered by HTMV",
   "type": "module",

@@ -1,18 +1,18 @@
 # HTMV Editor
 
-`@htmv/editor` 0.3 is a framework-independent TypeScript motion editor and a standalone browser application. Editing, decoding, storage, and rendering run locally. Its working target is a three-minute 1920×1080 project with roughly 100 clips, ten tracks, and 1,000 keyframes.
+`@bookklik/htmv-editor` 0.3 is a framework-independent TypeScript motion editor and a standalone browser application. Editing, decoding, storage, and rendering run locally. Its working target is a three-minute 1920×1080 project with roughly 100 clips, ten tracks, and 1,000 keyframes.
 
 ## Install and embed
 
 ```sh
-npm install @htmv/editor @bookklik/htmv
+npm install @bookklik/htmv-editor @bookklik/htmv
 ```
 
 Use the mounted workspace when you want the complete editor UI:
 
 ```ts
-import { createEditor } from '@htmv/editor';
-import '@htmv/editor/styles.css';
+import { createEditor } from '@bookklik/htmv-editor';
+import '@bookklik/htmv-editor/styles.css';
 
 const editor = createEditor(document.querySelector<HTMLElement>('#editor')!, {
   storageKey: 'my-app',
@@ -26,7 +26,7 @@ await editor.ready;
 The dedicated headless entry does not mount HTML, install keyboard handlers, open dialogs, load UI fonts/icons/styles, or access IndexedDB/localStorage. Your application owns controls, persistence, asset acquisition, downloads, and unsaved-change prompts. It reuses the same project validation, commands, undo/redo, selection, composition conversion, archives, preview engine, and export pipeline as the mounted editor.
 
 ```ts
-import { createHeadlessEditor, createProject } from '@htmv/editor/headless';
+import { createHeadlessEditor, createProject } from '@bookklik/htmv-editor/headless';
 
 const editor = createHeadlessEditor({
   project: createProject('Embedded project'),
@@ -72,7 +72,7 @@ Build outputs:
 
 The UI uses locally bundled **Outfit** (variable weight 100–900, SIL Open Font License) and **Lucide** SVG icons (ISC license). No font or icon CDN is required. Keep `fonts/` and `branding/` beside `styles.css` when copying the built stylesheet; build outputs include both licenses. UI typography does not change fonts authored inside project compositions.
 
-Branding comes from the project's root `logo.svg` (header/About mark) and `icon.svg` (page favicon). The build adds scalable SVG viewports without changing their artwork, distributes them with both outputs, and versions their URLs for static hosting. Library consumers can import `@htmv/editor/logo.svg` and `@htmv/editor/icon.svg`. The UI uses the logo's green (`#00FF99`) for actions and status, blue (`#2563EB`) for navigation, selection, and keyboard focus, and yellow (`#FACC15`) for timeline highlights. Theme-aware shades and tinted selection surfaces keep these roles legible in dark and light modes; workspace surfaces stay neutral, and clip-type colors and error/warning semantics remain distinct.
+Branding comes from the project's root `logo.svg` (header/About mark) and `icon.svg` (page favicon). The build adds scalable SVG viewports without changing their artwork, distributes them with both outputs, and versions their URLs for static hosting. Library consumers can import `@bookklik/htmv-editor/logo.svg` and `@bookklik/htmv-editor/icon.svg`. The UI uses the logo's green (`#00FF99`) for actions and status, blue (`#2563EB`) for navigation, selection, and keyboard focus, and yellow (`#FACC15`) for timeline highlights. Theme-aware shades and tinted selection surfaces keep these roles legible in dark and light modes; workspace surfaces stay neutral, and clip-type colors and error/warning semantics remain distinct.
 
 | Directory | Contents |
 | --- | --- |
@@ -96,8 +96,8 @@ Serve `app/appearance.html` for an isolated interactive workbench with exact-siz
 ## Embed
 
 ```ts
-import { createEditor, createProject } from '@htmv/editor';
-import '@htmv/editor/styles.css';
+import { createEditor, createProject } from '@bookklik/htmv-editor';
+import '@bookklik/htmv-editor/styles.css';
 
 const editor = createEditor(document.querySelector<HTMLElement>('#editor')!, {
   storageKey: 'my-application',
