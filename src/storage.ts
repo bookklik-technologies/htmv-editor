@@ -47,6 +47,15 @@ export class ProjectStorage {
     await Promise.all(project.assets.map(async a => { const blob = await request(tx.objectStore('assets').get(`${key}/${a.id}`)); if (blob instanceof Blob) { assets[a.id] = blob; this.storedBlobs.set(`${key}/${a.id}`, new WeakRef(blob)); } }));
     validateProject(project, assets, true); this.baseline.set(key, row.revision ?? 0); return { project, assets };
   }
+  /** Re-importing an archive whose content already matches the stored row must not read as a cross-tab conflict: adopt the stored revision as the save baseline. */
+  async adopt(project: EditorProject): Promise<void> {
+    if (this.closed) throw new Error('Project storage is closed.');
+    const key = this.key(project.id); if (this.baseline.get(key) !== undefined) return;
+    try {
+      const db = await this.open(), row = await request(db.transaction('projects').objectStore('projects').get(key)) as SavedProject | undefined;
+      if (row && !row.deletedAt && row.namespace === this.namespace && JSON.stringify(migrateProject(row.project)) === JSON.stringify(project)) this.baseline.set(key, row.revision ?? 0);
+    } catch { /* Without a baseline the next save keeps today's compare-and-swap behavior. */ }
+  }
   async save(project: EditorProject, assets: EditorAssets): Promise<void> {
     validateProject(project, assets); const db = await this.open(), key = this.key(project.id), expected = this.baseline.get(key);
     const tx = db.transaction(['projects', 'assets'], 'readwrite'), done = completed(tx); let conflict = false, nextRevision = 0;

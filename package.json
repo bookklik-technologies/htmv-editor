@@ -1,34 +1,44 @@
 {
   "name": "@htmv/editor",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Local browser motion graphics editor powered by HTMV",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./headless": {
+      "types": "./dist/headless.d.ts",
+      "import": "./dist/headless.js"
+    },
+    "./package.json": "./package.json",
     "./styles.css": "./dist/styles.css",
     "./logo.svg": "./dist/branding/logo.svg",
     "./icon.svg": "./dist/branding/icon.svg"
   },
   "files": [
     "dist",
-    "docs",
-    "examples",
-    "VALIDATION.md"
+    "README.md",
+    "PUBLISHING.md",
+    "LICENSE"
   ],
   "sideEffects": [
     "**/*.css"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc --emitDeclarationOnly && node scripts/build.mjs",
+    "build": "node scripts/clean.mjs && tsc --emitDeclarationOnly && node scripts/build.mjs",
+    "prepack": "npm run build && node scripts/check-package.mjs",
+    "pack:check": "npm pack --dry-run",
     "dev": "npm run build && node scripts/dev.mjs"
   },
+  "publishConfig": { "access": "public" },
+  "keywords": ["htmv", "motion-graphics", "video-editor", "headless", "typescript"],
   "peerDependencies": {
     "@bookklik/htmv": "^0.1.2"
   },

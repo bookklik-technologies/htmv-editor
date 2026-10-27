@@ -1,6 +1,58 @@
 # HTMV Editor
 
-`@htmv/editor` 0.2 is a framework-independent TypeScript motion editor and a standalone browser application. Editing, decoding, storage, and rendering run locally. Its working target is a three-minute 1920×1080 project with roughly 100 clips, ten tracks, and 1,000 keyframes.
+`@htmv/editor` 0.3 is a framework-independent TypeScript motion editor and a standalone browser application. Editing, decoding, storage, and rendering run locally. Its working target is a three-minute 1920×1080 project with roughly 100 clips, ten tracks, and 1,000 keyframes.
+
+## Install and embed
+
+```sh
+npm install @htmv/editor @bookklik/htmv
+```
+
+Use the mounted workspace when you want the complete editor UI:
+
+```ts
+import { createEditor } from '@htmv/editor';
+import '@htmv/editor/styles.css';
+
+const editor = createEditor(document.querySelector<HTMLElement>('#editor')!, {
+  storageKey: 'my-app',
+});
+await editor.ready;
+// Give the container an explicit height; await editor.destroy() on unmount.
+```
+
+### Headless embedding (bring your own UI)
+
+The dedicated headless entry does not mount HTML, install keyboard handlers, open dialogs, load UI fonts/icons/styles, or access IndexedDB/localStorage. Your application owns controls, persistence, asset acquisition, downloads, and unsaved-change prompts. It reuses the same project validation, commands, undo/redo, selection, composition conversion, archives, preview engine, and export pipeline as the mounted editor.
+
+```ts
+import { createHeadlessEditor, createProject } from '@htmv/editor/headless';
+
+const editor = createHeadlessEditor({
+  project: createProject('Embedded project'),
+  // Optional: your canvas enables browser preview, playback, and exports.
+  canvas: document.querySelector<HTMLCanvasElement>('#preview')!,
+  onEvent(event) {
+    if (event.type === 'change') console.log(event.project);
+  },
+});
+await editor.ready;
+editor.updateProject(draft => { draft.background = '#163325'; });
+await editor.refreshPreview();
+await editor.seek(30);
+const archive = await editor.saveArchive(); // Persist/download the Blob yourself.
+// await editor.loadProject(project, assets); // Validated, resets undo history.
+// await editor.openArchive(archive);         // Restores project and media.
+await editor.destroy();
+```
+
+Omit `canvas` for DOM-free document editing, commands, selection, undo/redo, archives, and `toComposition()`. Headless is **UI-free**, not server-side video encoding: rendering/playback/frame inspection require a browser canvas and the same browser capabilities as the full editor. No stylesheet is needed. Use `getProject()`/`getAssets()` snapshots for host persistence; supply Blob assets keyed by asset ID when loading media projects. Missing asset data is rejected rather than silently persisted.
+
+After synchronous edits, call `await refreshPreview()` to redraw; `play()` and `seek()` refresh automatically. `inspectFrame()` requires a current preview. Async operations are serialized; await them before synchronous edits (otherwise editing throws). Callbacks must be synchronous; use events to update host state rather than mutating the editor reentrantly. Initialization/operation failures reject their promises; preview diagnostics also arrive through `onEvent`. `canUndo`/`canRedo` expose history availability.
+
+Browser exports use `preflightExport()`, `exportStill()`, `exportVideo()`, and `exportToTarget()` with the same options/targets documented below. Pass an AbortSignal to cancel video export. `destroy()` aborts owned work, waits for resource disposal, and cleans retained temporary OPFS outputs; consume those outputs before destroying the controller. The host retains ownership of its canvas. Headless omits the mounted editor's media-import workflow, template library, appearance, autosave, and download dialogs; prepare project/media bundles in the host or open a .htmv archive.
+
+Buildless hosts can serve `app/htmv-headless.js` and import `createHeadlessEditor` from it. See `examples/headless.html` (copied to `app/headless.html` during build) for host-owned controls. The npm package is ESM-only with declarations for both entries. See [PUBLISHING.md](PUBLISHING.md) for package checks and manual publishing; no script publishes automatically.
 
 ## Build and serve
 
@@ -65,7 +117,7 @@ await editor.destroy();
 
 Give the container an explicit height; the workspace minimum is 880×580 CSS pixels. Styles and shortcuts are scoped to each instance. Use distinct `storageKey` values for independently persisted instances. `autosave: false` lets a host manage persistence. Before deliberately abandoning that host-managed document, pass `{ discardUnsaved: true }` to `loadProject`, `openArchive`, or `loadTemplate` only after the host has obtained the user's decision.
 
-For buildless embedding, import `createEditor` from `app/htmv-editor.js` and link `app/styles.css`. [examples/embed.html](examples/embed.html) demonstrates mounting and asynchronously destroying two instances.
+For buildless embedding from a source checkout, import `createEditor` from `app/htmv-editor.js` and link `app/styles.css`. The repository's `examples/embed.html` demonstrates mounting and asynchronously destroying two instances. Standalone app files and example pages are generated from source, not included in the npm library package.
 
 ## Workspace
 
@@ -100,7 +152,7 @@ A `.htmv` file is a ZIP containing `project.json` and `assets/<asset-id>`. Impor
 
 ## Controller API
 
-All public types are exported from the package. The full signatures are in [src/types.ts](src/types.ts).
+All public types are exported from the package. The full signatures ship in [dist/types.d.ts](dist/types.d.ts); the source checkout keeps them in `src/types.ts`.
 
 | API | Behavior |
 | --- | --- |
@@ -171,4 +223,4 @@ Shortcuts do not intercept text inputs. The internal clip clipboard is shared be
 
 Desktop Chrome/Edge are the target. This delivery was exercised in the available Chromium in-app browser; separate branded Chrome/Edge verification remains outstanding. Codecs, file pickers, storage quotas, hardware, and font metrics vary by browser/device. Audio with more than two channels needs an external downmix. Waveforms are bounded sampled overviews, not complete sample-by-sample analysis. The three-minute benchmark uses synthetic shapes and keyframes, so its results do not predict heavy source decoding or text/font workloads.
 
-Nested compositions, parenting, graph editing, automatic transcription, cloud services, accounts, remote media URLs, editable raw source, and transparent-video export remain outside this phase. See [VALIDATION.md](VALIDATION.md) for measured evidence and remaining checks. The manual fixture page uses an isolated storage namespace and does not replace standalone projects.
+Nested compositions, parenting, graph editing, automatic transcription, cloud services, accounts, remote media URLs, editable raw source, and transparent-video export remain outside this phase. The manual fixture page uses an isolated storage namespace and does not replace standalone projects.

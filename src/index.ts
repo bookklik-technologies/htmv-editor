@@ -1,4 +1,5 @@
 export { createEditor } from './editor.js';
+export { createHeadlessEditor } from './headless.js';
 export { createProject, validateProject, migrateProject } from './project.js';
 export { applyCommand } from './commands.js';
 export { parseSubtitles, subtitleBlob } from './captions.js';

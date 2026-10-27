@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Headless HTMV embedding</title>
+<body>
+<h1>Host-owned controls, headless editor</h1>
+<p>No editor stylesheet, workspace, autosave, or global keyboard shortcuts.</p>
+<canvas id="preview" width="640" height="360" aria-label="Composition preview" style="max-width:100%;height:auto"></canvas>
+<div id="controls" inert>
+  <button id="change">Change background</button>
+  <button id="undo">Undo</button>
+  <button id="play">Play</button>
+  <button id="pause">Pause</button>
+  <button id="save">Download project</button>
+</div>
+<output id="status" aria-live="polite">Initializing…</output>
+<script type="module">
+import { createHeadlessEditor, createProject } from './htmv-headless.js';
+const status = document.getElementById('status');
+const controls = document.getElementById('controls');
+const editor = createHeadlessEditor({
+  project: createProject('Headless example'),
+  canvas: document.getElementById('preview'),
+  onEvent(event) {
+    if (event.type === 'diagnostic') status.textContent = event.message;
+  }
+});
+async function run(action) {
+  controls.inert = true;
+  try { await action(); status.textContent = 'Ready'; }
+  catch (error) { status.textContent = error.message; }
+  finally { controls.inert = false; }
+}
+document.getElementById('change').onclick = () => run(async () => {
+  editor.updateProject(draft => { draft.background = draft.background === '#163325' ? '#000000' : '#163325'; });
+  await editor.refreshPreview();
+});
+document.getElementById('undo').onclick = () => run(async () => { editor.undo(); await editor.refreshPreview(); });
+document.getElementById('play').onclick = () => run(() => editor.play());
+document.getElementById('pause').onclick = () => editor.pause();
+document.getElementById('save').onclick = () => run(async () => {
+  const url = URL.createObjectURL(await editor.saveArchive());
+  const link = document.createElement('a');
+  link.href = url; link.download = 'headless-example.htmv'; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+try { await editor.ready; controls.inert = false; status.textContent = 'Ready'; }
+catch (error) { status.textContent = error.message; }
+window.addEventListener('pagehide', () => { void editor.destroy().catch(console.error); }, { once: true });
+</script>
+</body>
+</html>

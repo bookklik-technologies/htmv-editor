@@ -59,6 +59,39 @@ export type EditorEvent =
   | { type: 'save'; status: 'saving' | 'saved' | 'error' | 'disabled' | 'conflict'; message: string }
   | { type: 'export'; phase: string; completedFrames: number; totalFrames: number };
 export interface EditorOptions { project?: EditorProjectInput; assets?: EditorAssets; autosave?: boolean; storageKey?: string; appearance?: EditorAppearance; onEvent?: (event: EditorEvent) => void }
+export interface HeadlessEditorOptions {
+  project?: EditorProjectInput;
+  assets?: EditorAssets;
+  canvas?: HTMLCanvasElement;
+  onEvent?: (event: EditorEvent) => void;
+}
+export interface HeadlessEditorController {
+  readonly ready: Promise<void>;
+  readonly canUndo: boolean;
+  readonly canRedo: boolean;
+  getProject(): EditorProject;
+  getAssets(): EditorAssets;
+  loadProject(project: EditorProjectInput, assets?: EditorAssets): Promise<void>;
+  updateProject(update: (draft: EditorProject) => void): void;
+  dispatch(command: EditorCommand): void;
+  getSelection(): string[];
+  setSelection(ids: string[]): void;
+  undo(): void;
+  redo(): void;
+  toComposition(): string;
+  saveArchive(): Promise<Blob>;
+  openArchive(file: Blob): Promise<void>;
+  refreshPreview(): Promise<void>;
+  inspectFrame(frame?: number): EditorFrameState;
+  play(): Promise<void>;
+  pause(): void;
+  seek(frame: number): Promise<void>;
+  exportStill(frame?: number): Promise<Blob>;
+  preflightExport(options?: VideoExportOptions): Promise<ExportPreflight>;
+  exportVideo(options?: VideoExportOptions): Promise<VideoExportResult>;
+  exportToTarget(target: EditorOutputTarget, options?: VideoExportOptions): Promise<TargetExportResult>;
+  destroy(): Promise<void>;
+}
 export interface VideoExportOptions { profile?: 'mp4' | 'webm' | 'auto'; allowUnverifiedAudio?: boolean; signal?: AbortSignal; range?: { from: number; toExclusive: number }; width?: number; height?: number; videoBitrate?: number; audioBitrate?: number }
 export type EditorOutputTarget = { kind: 'memory'; maxBytes?: number } | { kind: 'file'; handle: FileSystemFileHandle } | { kind: 'opfs'; name?: string };
 export interface VideoExportResult { blob: Blob; extension: string; manifest: Record<string, unknown> }
